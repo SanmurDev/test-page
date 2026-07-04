@@ -1,1 +1,46 @@
-test
+trigger:
+  - main
+
+resources:
+  - repo: self
+
+variables:
+  - group: "CICD"
+
+parameters:
+  - name: tag
+    default: "$(Build.BuildId)"
+  - name: imageName
+    default: "test-page"
+
+stages:
+  - stage: Build
+    displayName: Build image
+    jobs:
+      - job: Build
+        displayName: Build
+        pool: local-agent
+
+        steps:
+          - script: |
+              echo "var=$(appVersion)"
+              echo "tag= ${{ parameters.tag }}"
+
+          - task: Docker@2
+            displayName: Build an image
+            inputs:
+              command: build
+              repository: ${{ parameters.imageName }}
+              dockerfile: "**/Dockerfile"
+              tags: |
+                ${{ parameters.tag }}
+              arguments: "--build-arg VERSION=$(appVersion)"
+              containerRegistry: 'registryConnection'
+
+          - task: Docker@2
+            displayName: 'Push Docker Image'
+            inputs:
+              command: 'push'
+              containerRegistry: 'registryConnection'
+              repository: ${{ parameters.imageName }}
+              tags: ${{ parameters.tag }}
