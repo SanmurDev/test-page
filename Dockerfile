@@ -5,7 +5,7 @@ FROM nginx:alpine
 COPY index.html /usr/share/nginx/html/index.html
 
 # Expone el puerto 3001
-EXPOSE 3001
+EXPOSE 80
 
 # Inicia Nginx
 CMD ["nginx", "-g", "daemon off;"]
